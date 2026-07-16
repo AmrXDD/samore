@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
+import { MoveHorizontal } from "lucide-react";
 import { HIERARCHY } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
@@ -61,8 +62,14 @@ export function HierarchyTree() {
   const [engineering, trading] = HIERARCHY;
 
   return (
-    <div className="w-full overflow-x-auto pb-4">
-      <div className="mx-auto flex min-w-[900px] max-w-5xl flex-col items-center">
+    <div className="w-full">
+      {/* The chart keeps its exact shape on every screen; small screens scroll it. */}
+      <p className="mb-4 flex items-center gap-2 text-xs text-muted-foreground lg:hidden">
+        <MoveHorizontal className="h-3.5 w-3.5" />
+        Swipe to explore the full structure
+      </p>
+      <div className="w-full overflow-x-auto pb-4 [-webkit-overflow-scrolling:touch]">
+        <div className="mx-auto flex min-w-[880px] max-w-5xl flex-col items-center">
         {/* Root */}
         <TreeBox title="SAMORE" variant="root" />
         <VLine className="h-8" />
@@ -131,6 +138,7 @@ export function HierarchyTree() {
               ))}
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>

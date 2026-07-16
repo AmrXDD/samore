@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LogOut, User } from "lucide-react";
 import { logout } from "@/app/actions/auth";
+import { AdminMobileNav } from "./mobile-nav";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -36,8 +37,11 @@ export function AdminTopbar({ email }: { email: string }) {
     "Dashboard";
 
   return (
-    <header className="sticky top-0 z-30 flex h-20 items-center justify-between border-b border-border bg-canvas/80 px-6 backdrop-blur-md md:px-10">
-      <h1 className="text-xl font-semibold tracking-tight">{title}</h1>
+    <header className="sticky top-0 z-30 flex h-20 items-center justify-between gap-3 border-b border-border bg-canvas/80 px-4 backdrop-blur-md md:px-10">
+      <div className="flex min-w-0 items-center gap-2">
+        <AdminMobileNav />
+        <h1 className="truncate text-lg font-semibold tracking-tight md:text-xl">{title}</h1>
+      </div>
       <DropdownMenu>
         <DropdownMenuTrigger className="flex items-center gap-3 rounded-lg p-1 outline-none focus-visible:ring-2 focus-visible:ring-ring">
           <Avatar>

@@ -62,7 +62,7 @@ export default async function HomePage() {
           <p className="eyebrow mb-6">{eyebrow}</p>
         </Reveal>
         <Reveal delay={0.05}>
-          <h1 className="max-w-5xl text-balance text-5xl font-semibold leading-[1.02] tracking-tightest md:text-7xl lg:text-[5.5rem]">
+          <h1 className="max-w-5xl text-balance text-[2.5rem] font-semibold leading-[1.05] tracking-tightest sm:text-5xl md:text-7xl md:leading-[1.02] lg:text-[5.5rem]">
             {headline}
           </h1>
         </Reveal>
@@ -72,14 +72,14 @@ export default async function HomePage() {
           </p>
         </Reveal>
         <Reveal delay={0.15}>
-          <div className="mt-10 flex flex-wrap items-center gap-4">
-            <Button asChild size="lg">
+          <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+            <Button asChild size="lg" className="w-full sm:w-auto">
               <Link href={hero?.cta_href ?? "/engineering-construction"}>
                 {hero?.cta_label ?? "Explore services"}
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
-            <Button asChild size="lg" variant="outline">
+            <Button asChild size="lg" variant="outline" className="w-full sm:w-auto">
               <Link href="/contact">Contact us</Link>
             </Button>
           </div>

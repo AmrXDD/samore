@@ -48,13 +48,13 @@ export function CartView() {
               </p>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center justify-between gap-3 sm:justify-end sm:gap-4">
               <div className="flex items-center rounded-lg border border-border">
                 <button
                   type="button"
                   aria-label="Decrease quantity"
                   onClick={() => setQuantity(item.courseId, item.quantity - 1)}
-                  className="flex h-9 w-9 items-center justify-center transition-colors hover:bg-secondary"
+                  className="flex h-11 w-11 items-center justify-center transition-colors hover:bg-secondary sm:h-9 sm:w-9"
                 >
                   <Minus className="h-3.5 w-3.5" />
                 </button>
@@ -63,13 +63,13 @@ export function CartView() {
                   type="button"
                   aria-label="Increase quantity"
                   onClick={() => setQuantity(item.courseId, item.quantity + 1)}
-                  className="flex h-9 w-9 items-center justify-center transition-colors hover:bg-secondary"
+                  className="flex h-11 w-11 items-center justify-center transition-colors hover:bg-secondary sm:h-9 sm:w-9"
                 >
                   <Plus className="h-3.5 w-3.5" />
                 </button>
               </div>
 
-              <span className="w-24 shrink-0 text-right font-semibold">
+              <span className="shrink-0 font-semibold sm:w-24 sm:text-right">
                 {formatCurrency(item.price * item.quantity, item.currency)}
               </span>
 
@@ -77,7 +77,7 @@ export function CartView() {
                 type="button"
                 aria-label={`Remove ${item.title}`}
                 onClick={() => remove(item.courseId)}
-                className="text-muted-foreground transition-colors hover:text-destructive"
+                className="flex h-11 w-11 shrink-0 items-center justify-center text-muted-foreground transition-colors hover:text-destructive sm:h-9 sm:w-9"
               >
                 <Trash2 className="h-4 w-4" />
               </button>

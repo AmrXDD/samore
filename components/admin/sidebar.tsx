@@ -2,40 +2,17 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  LayoutDashboard,
-  GraduationCap,
-  Boxes,
-  Users,
-  CreditCard,
-  Mail,
-  FileText,
-  Shield,
-  Settings,
-  BarChart3,
-} from "lucide-react";
+import { ADMIN_NAV, isNavActive } from "./nav-items";
 import { cn } from "@/lib/utils";
 
-const NAV = [
-  { title: "Dashboard", href: "/admin", icon: LayoutDashboard, exact: true },
-  { title: "Courses", href: "/admin/courses", icon: GraduationCap },
-  { title: "Services", href: "/admin/services", icon: Boxes },
-  { title: "Customers", href: "/admin/customers", icon: Users },
-  { title: "Payments", href: "/admin/payments", icon: CreditCard },
-  { title: "Emails", href: "/admin/emails", icon: Mail },
-  { title: "LOI", href: "/admin/loi", icon: FileText },
-  { title: "Users", href: "/admin/users", icon: Shield },
-  { title: "Analytics", href: "/admin/analytics", icon: BarChart3 },
-  { title: "Settings", href: "/admin/settings", icon: Settings },
-];
-
+/** Desktop sidebar (lg and up). Mobile uses AdminMobileNav in the topbar. */
 export function AdminSidebar() {
   const pathname = usePathname();
 
   return (
     <aside className="hidden w-64 shrink-0 border-r border-border bg-canvas lg:block">
       <div className="sticky top-0 flex h-screen flex-col">
-        <div className="flex h-20 items-center border-b border-border px-6">
+        <div className="flex h-20 items-center px-6">
           <Link href="/admin" className="text-base font-semibold tracking-[0.28em]">
             SAMORE
           </Link>
@@ -43,11 +20,9 @@ export function AdminSidebar() {
             Admin
           </span>
         </div>
-        <nav className="flex-1 space-y-1 overflow-y-auto p-4">
-          {NAV.map((item) => {
-            const active = item.exact
-              ? pathname === item.href
-              : pathname.startsWith(item.href);
+        <nav className="flex-1 space-y-1 overflow-y-auto border-t border-border p-4">
+          {ADMIN_NAV.map((item) => {
+            const active = isNavActive(pathname, item);
             const Icon = item.icon;
             return (
               <Link
