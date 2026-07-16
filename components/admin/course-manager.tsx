@@ -38,6 +38,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { StatusBadge } from "@/components/admin/status-badge";
+import { ConfirmDelete } from "@/components/ui/confirm-delete";
 import { Field, SubmitButton } from "@/components/forms/form-primitives";
 import type { Course, CourseCategory } from "@/types";
 
@@ -50,6 +51,7 @@ export function CourseManager({
 }) {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Course | null>(null);
+  const [deleting, setDeleting] = useState<Course | null>(null);
   const [pending, startTransition] = useTransition();
 
   const [state, action] = useActionState(upsertCourse, initialActionState);
@@ -232,12 +234,10 @@ export function CourseManager({
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           className="text-destructive"
-                          onSelect={() =>
-                            startTransition(async () => {
-                              await deleteCourse(course.id);
-                              toast.success("Course deleted.");
-                            })
-                          }
+                          onSelect={(e) => {
+                            e.preventDefault();
+                            setDeleting(course);
+                          }}
                         >
                           <Trash2 className="h-4 w-4" /> Delete
                         </DropdownMenuItem>
@@ -250,6 +250,24 @@ export function CourseManager({
           </Table>
         )}
       </div>
+
+      {/* Two-step guard for course deletion */}
+      <ConfirmDelete
+        open={deleting !== null}
+        onOpenChange={(o) => !o && setDeleting(null)}
+        title="Delete this course?"
+        itemLabel={deleting ? `${deleting.code ? deleting.code + " — " : ""}${deleting.title}` : undefined}
+        description="The course will be removed from the website permanently. Existing orders keep their record. To take it offline instead, use Archive or Unpublish."
+        pending={pending}
+        onConfirm={() => {
+          const c = deleting;
+          if (!c) return;
+          startTransition(async () => {
+            await deleteCourse(c.id);
+            toast.success("Course deleted.");
+          });
+        }}
+      />
     </div>
   );
 }
@@ -285,22 +303,30 @@ function CategoryManager({
       </form>
       <div className="flex flex-wrap gap-1.5">
         {categories.map((c) => (
-          <button
+          <ConfirmDelete
             key={c.id}
-            type="button"
-            disabled={pending}
-            onClick={() =>
+            title="Remove this category?"
+            itemLabel={c.name}
+            description="Courses in this category are kept, but they will no longer show a category."
+            confirmLabel="Remove category"
+            pending={pending}
+            onConfirm={() =>
               startTransition(async () => {
                 await deleteCategory(c.id);
                 toast.success("Category removed.");
               })
             }
-            className="group inline-flex items-center gap-1 rounded-full border border-border bg-card px-3 py-1 text-xs hover:border-destructive hover:text-destructive"
-            title="Remove category"
           >
-            {c.name}
-            <Trash2 className="h-3 w-3 opacity-0 group-hover:opacity-100" />
-          </button>
+            <button
+              type="button"
+              disabled={pending}
+              className="group inline-flex items-center gap-1 rounded-full border border-border bg-card px-3 py-1 text-xs hover:border-destructive hover:text-destructive"
+              title="Remove category"
+            >
+              {c.name}
+              <Trash2 className="h-3 w-3 opacity-0 group-hover:opacity-100" />
+            </button>
+          </ConfirmDelete>
         ))}
       </div>
     </div>

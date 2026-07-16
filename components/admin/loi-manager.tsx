@@ -20,6 +20,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { ConfirmDelete } from "@/components/ui/confirm-delete";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import type { Loi } from "@/types";
 
@@ -99,19 +100,22 @@ export function LoiManager({ lois }: { lois: Loi[] }) {
                           </Button>
                         </>
                       ) : null}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        disabled={pending}
-                        onClick={() =>
+                      <ConfirmDelete
+                        title="Delete this Letter of Intent?"
+                        itemLabel={`${l.reference} — ${l.customer_name}`}
+                        description="The LOI record and its PDF file will be permanently deleted. Download a copy first if you may need it."
+                        pending={pending}
+                        onConfirm={() =>
                           startTransition(async () => {
                             await deleteLoi(l.id);
                             toast.success("LOI deleted.");
                           })
                         }
                       >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
+                        <Button variant="ghost" size="icon" disabled={pending}>
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </ConfirmDelete>
                     </div>
                   </TableCell>
                 </TableRow>

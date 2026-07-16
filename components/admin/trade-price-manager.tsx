@@ -29,6 +29,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { ConfirmDelete } from "@/components/ui/confirm-delete";
 import { Field, SubmitButton } from "@/components/forms/form-primitives";
 import type { SteelPrice, OilPrice } from "@/types";
 
@@ -166,19 +167,22 @@ function SteelTable({ rows }: { rows: SteelPrice[] }) {
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        disabled={pending}
-                        onClick={() =>
+                      <ConfirmDelete
+                        title="Delete this steel price row?"
+                        itemLabel={`${r.product} — ${r.quantity} Ton — ${r.price_usd} USD`}
+                        description="This row will be removed from the Steel Trading page permanently. If you only want to hide it, edit the row and untick 'Show on the website' instead."
+                        pending={pending}
+                        onConfirm={() =>
                           startTransition(async () => {
                             await deleteSteelPrice(r.id);
                             toast.success("Row deleted.");
                           })
                         }
                       >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
+                        <Button variant="ghost" size="icon" disabled={pending}>
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </ConfirmDelete>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -289,19 +293,22 @@ function OilTable({ rows }: { rows: OilPrice[] }) {
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        disabled={pending}
-                        onClick={() =>
+                      <ConfirmDelete
+                        title="Delete this oil price row?"
+                        itemLabel={`${r.product} — FOB ${r.fob_usd ?? "—"} / CIF ${r.cif_usd ?? "—"}`}
+                        description="This row will be removed from the Oil Trading page permanently. If you only want to hide it, edit the row and untick 'Show on the website' instead."
+                        pending={pending}
+                        onConfirm={() =>
                           startTransition(async () => {
                             await deleteOilPrice(r.id);
                             toast.success("Row deleted.");
                           })
                         }
                       >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
+                        <Button variant="ghost" size="icon" disabled={pending}>
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </ConfirmDelete>
                     </div>
                   </TableCell>
                 </TableRow>

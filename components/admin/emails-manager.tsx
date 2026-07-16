@@ -22,6 +22,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { StatusBadge } from "@/components/admin/status-badge";
+import { ConfirmDelete } from "@/components/ui/confirm-delete";
 import { formatDateTime, toCSV } from "@/lib/utils";
 import type { ContactMessage, NewsletterSubscriber } from "@/types";
 
@@ -147,19 +148,22 @@ export function EmailsManager({
                           >
                             <Eye className="h-4 w-4" />
                           </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            disabled={pending}
-                            onClick={() =>
+                          <ConfirmDelete
+                            title="Delete this message?"
+                            itemLabel={`${m.name} — ${m.email}`}
+                            description="This customer enquiry will be permanently removed. Make sure you have replied or copied their details first."
+                            pending={pending}
+                            onConfirm={() =>
                               startTransition(async () => {
                                 await deleteContactMessage(m.id);
                                 toast.success("Message deleted.");
                               })
                             }
                           >
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
+                            <Button variant="ghost" size="icon" disabled={pending}>
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </ConfirmDelete>
                         </div>
                       </TableCell>
                     </TableRow>
