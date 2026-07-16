@@ -56,7 +56,7 @@ export async function upsertCourse(
     code: c.code || null,
     description: c.description || null,
     price: c.price,
-    currency: c.currency,
+    currency: c.currency.toUpperCase(),
     duration: c.duration || null,
     instructor: c.instructor || null,
     category_id: c.categoryId || null,
@@ -82,8 +82,31 @@ export async function upsertCourse(
     revalidatePath("/courses");
     return { ok: true, message: id ? "Course updated." : "Course created." };
   } catch (err) {
-    console.error("upsertCourse failed:", err);
-    return { ok: false, message: "Could not save course." };
+    // Surface the real cause — a generic message here just hides the problem.
+    const e = err as { code?: string; message?: string; details?: string };
+    console.error("upsertCourse failed:", e.code, e.message, e.details);
+
+    if (e.code === "23505") {
+      return {
+        ok: false,
+        message: "A course with this title already exists. Use a different title.",
+        errors: { title: ["This title is already taken."] },
+      };
+    }
+    if (e.code === "42703") {
+      return {
+        ok: false,
+        message:
+          "Database is out of date (missing a column). Run sql/seed-data.sql in the Supabase SQL editor.",
+      };
+    }
+    if (e.code === "23503") {
+      return { ok: false, message: "That category no longer exists. Pick another." };
+    }
+    return {
+      ok: false,
+      message: e.message ? `Could not save course: ${e.message}` : "Could not save course.",
+    };
   }
 }
 
