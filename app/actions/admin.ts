@@ -6,6 +6,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import {
   courseSchema,
   categorySchema,
+  steelPriceSchema,
+  oilPriceSchema,
   bankSettingsSchema,
   heroSchema,
   companySettingsSchema,
@@ -154,6 +156,113 @@ export async function deleteCategory(id: string): Promise<void> {
   const supabase = createAdminClient();
   await supabase.from("course_categories").delete().eq("id", id);
   revalidatePath("/admin/courses");
+}
+
+/* ─────────────────────── Trade prices (Steel / Oil) ─────────────────────── */
+
+export async function upsertSteelPrice(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const admin = await requireAdmin();
+  const raw = formToObject(formData);
+  const id = raw.id || null;
+
+  const parsed = validate(steelPriceSchema, {
+    ...raw,
+    isActive: raw.isActive === "on" || raw.isActive === "true",
+  });
+  if (!parsed.success) {
+    return { ok: false, message: "Please fix the highlighted fields.", errors: parsed.errors };
+  }
+  const p = parsed.data;
+  const supabase = createAdminClient();
+
+  const payload = {
+    table_group: p.tableGroup,
+    product: p.product,
+    quantity: p.quantity,
+    price_usd: p.priceUsd,
+    sort_order: p.sortOrder,
+    is_active: p.isActive,
+  };
+
+  const { error } = id
+    ? await supabase.from("steel_prices").update(payload).eq("id", id)
+    : await supabase.from("steel_prices").insert(payload);
+
+  if (error) {
+    console.error("upsertSteelPrice failed:", error);
+    return { ok: false, message: `Could not save: ${error.message}` };
+  }
+
+  await logActivity(admin.email, id ? "steel_price.updated" : "steel_price.created", "steel_prices", id, {
+    product: p.product,
+  });
+  revalidatePath("/admin/trade-prices");
+  revalidatePath("/steel-trading");
+  return { ok: true, message: id ? "Price updated." : "Price added." };
+}
+
+export async function deleteSteelPrice(id: string): Promise<void> {
+  const admin = await requireAdmin();
+  const supabase = createAdminClient();
+  await supabase.from("steel_prices").delete().eq("id", id);
+  await logActivity(admin.email, "steel_price.deleted", "steel_prices", id);
+  revalidatePath("/admin/trade-prices");
+  revalidatePath("/steel-trading");
+}
+
+export async function upsertOilPrice(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const admin = await requireAdmin();
+  const raw = formToObject(formData);
+  const id = raw.id || null;
+
+  const parsed = validate(oilPriceSchema, {
+    ...raw,
+    isActive: raw.isActive === "on" || raw.isActive === "true",
+  });
+  if (!parsed.success) {
+    return { ok: false, message: "Please fix the highlighted fields.", errors: parsed.errors };
+  }
+  const p = parsed.data;
+  const supabase = createAdminClient();
+
+  const payload = {
+    product: p.product,
+    fob_usd: p.fobUsd || null,
+    cif_usd: p.cifUsd || null,
+    sort_order: p.sortOrder,
+    is_active: p.isActive,
+  };
+
+  const { error } = id
+    ? await supabase.from("oil_prices").update(payload).eq("id", id)
+    : await supabase.from("oil_prices").insert(payload);
+
+  if (error) {
+    console.error("upsertOilPrice failed:", error);
+    return { ok: false, message: `Could not save: ${error.message}` };
+  }
+
+  await logActivity(admin.email, id ? "oil_price.updated" : "oil_price.created", "oil_prices", id, {
+    product: p.product,
+  });
+  revalidatePath("/admin/trade-prices");
+  revalidatePath("/oil-trading");
+  return { ok: true, message: id ? "Price updated." : "Price added." };
+}
+
+export async function deleteOilPrice(id: string): Promise<void> {
+  const admin = await requireAdmin();
+  const supabase = createAdminClient();
+  await supabase.from("oil_prices").delete().eq("id", id);
+  await logActivity(admin.email, "oil_price.deleted", "oil_prices", id);
+  revalidatePath("/admin/trade-prices");
+  revalidatePath("/oil-trading");
 }
 
 /* ───────────────────────────── Payments ───────────────────────────── */

@@ -4,12 +4,13 @@ import {
   Head,
   Hr,
   Html,
+  Img,
   Preview,
   Section,
   Text,
 } from "@react-email/components";
 import type { ReactNode } from "react";
-import { COMPANY } from "@/lib/constants";
+import { COMPANY, SITE_URL } from "@/lib/constants";
 
 const main = {
   backgroundColor: "#FAF9F6",
@@ -60,6 +61,13 @@ export function EmailLayout({
       <Body style={main}>
         <Container style={container}>
           <Section style={card}>
+            <Img
+              src={`${SITE_URL}/samore-logo.png`}
+              alt="SAMORE"
+              width="34"
+              height="35"
+              style={{ display: "block", marginBottom: "12px" }}
+            />
             <Text style={brand}>SAMORE</Text>
             {children}
           </Section>

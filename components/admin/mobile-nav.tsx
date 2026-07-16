@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { ADMIN_NAV, isNavActive } from "./nav-items";
+import { Logo } from "@/components/site/logo";
 import { cn } from "@/lib/utils";
 
 /** Slide-over admin navigation for phone + tablet (below lg). */
@@ -49,9 +50,7 @@ export function AdminMobileNav() {
           {/* Panel */}
           <div className="absolute inset-y-0 left-0 flex w-[min(17rem,85vw)] flex-col border-r border-border bg-canvas shadow-xl">
             <div className="flex h-20 shrink-0 items-center justify-between px-5">
-              <Link href="/admin" className="text-base font-semibold tracking-[0.28em]">
-                SAMORE
-              </Link>
+              <Logo href="/admin" size={26} />
               <button
                 type="button"
                 aria-label="Close menu"

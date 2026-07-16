@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ServiceView } from "@/components/service/service-view";
+import { SteelTradeSection, OilTradeSection } from "@/components/trade/trade-sections";
 import { getService } from "@/lib/services";
+import { getSteelPrices, getOilPrices } from "@/lib/queries";
 import { allServiceSlugs, SITE_URL } from "@/lib/constants";
 
 export function generateStaticParams() {
@@ -9,6 +11,8 @@ export function generateStaticParams() {
 }
 
 export const dynamicParams = false;
+// Trade prices are admin-editable — refresh the static pages periodically.
+export const revalidate = 60;
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -40,6 +44,14 @@ export default async function ServicePage({ params }: Props) {
   const service = getService(slug);
   if (!service) notFound();
 
+  // Live, admin-editable price tables for the two trading pages.
+  let extras: React.ReactNode = null;
+  if (slug === "steel-trading") {
+    extras = <SteelTradeSection prices={await getSteelPrices()} />;
+  } else if (slug === "oil-trading") {
+    extras = <OilTradeSection prices={await getOilPrices()} />;
+  }
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Service",
@@ -60,7 +72,7 @@ export default async function ServicePage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <ServiceView service={service} />
+      <ServiceView service={service} extras={extras} />
     </>
   );
 }

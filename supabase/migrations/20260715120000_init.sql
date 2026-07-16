@@ -732,3 +732,58 @@ grant execute on function public.monthly_revenue() to anon, authenticated, servi
 grant execute on function public.is_admin() to anon, authenticated, service_role;
 
 -- End of schema.
+
+-- ============================================================================
+-- Trade prices (Steel / Oil) — admin-editable price lists.
+-- Full standalone version (with seed) also lives in sql/trade-prices.sql
+-- ============================================================================
+create table if not exists public.steel_prices (
+  id          uuid primary key default gen_random_uuid(),
+  table_group text not null default 'Main Prices',
+  product     text not null,
+  quantity    text not null,
+  price_usd   text not null,
+  sort_order  integer not null default 0,
+  is_active   boolean not null default true,
+  created_at  timestamptz not null default now(),
+  updated_at  timestamptz not null default now()
+);
+create index if not exists steel_prices_group_idx on public.steel_prices(table_group, sort_order);
+
+create table if not exists public.oil_prices (
+  id         uuid primary key default gen_random_uuid(),
+  product    text not null,
+  fob_usd    text,
+  cif_usd    text,
+  sort_order integer not null default 0,
+  is_active  boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists oil_prices_sort_idx on public.oil_prices(sort_order);
+
+alter table public.steel_prices enable row level security;
+alter table public.oil_prices   enable row level security;
+
+drop policy if exists steel_prices_public_read on public.steel_prices;
+create policy steel_prices_public_read on public.steel_prices
+  for select using (is_active or public.is_admin());
+drop policy if exists steel_prices_admin_write on public.steel_prices;
+create policy steel_prices_admin_write on public.steel_prices
+  for all using (public.is_admin()) with check (public.is_admin());
+
+drop policy if exists oil_prices_public_read on public.oil_prices;
+create policy oil_prices_public_read on public.oil_prices
+  for select using (is_active or public.is_admin());
+drop policy if exists oil_prices_admin_write on public.oil_prices;
+create policy oil_prices_admin_write on public.oil_prices
+  for all using (public.is_admin()) with check (public.is_admin());
+
+-- ONE example row per section only — the admin adds the rest.
+insert into public.steel_prices (table_group, product, quantity, price_usd, sort_order, is_active)
+select 'Main Prices', 'Used Rails', '700,000.00', '230.00', 1, true
+where not exists (select 1 from public.steel_prices);
+
+insert into public.oil_prices (product, fob_usd, cif_usd, sort_order, is_active)
+select 'EN90', '520/510', '530/520', 1, true
+where not exists (select 1 from public.oil_prices);

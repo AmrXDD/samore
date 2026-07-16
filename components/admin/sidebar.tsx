@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ADMIN_NAV, isNavActive } from "./nav-items";
+import { Logo } from "@/components/site/logo";
 import { cn } from "@/lib/utils";
 
 /** Desktop sidebar (lg and up). Mobile uses AdminMobileNav in the topbar. */
@@ -12,11 +13,12 @@ export function AdminSidebar() {
   return (
     <aside className="hidden w-64 shrink-0 border-r border-border bg-canvas lg:block">
       <div className="sticky top-0 flex h-screen flex-col">
-        <div className="flex h-20 items-center px-6">
-          <Link href="/admin" className="text-base font-semibold tracking-[0.28em]">
+        <div className="flex h-20 items-center gap-2 px-6">
+          <Logo href="/admin" size={26} showWordmark={false} />
+          <Link href="/admin" className="text-base font-semibold tracking-[0.24em]">
             SAMORE
           </Link>
-          <span className="ml-2 rounded bg-secondary px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+          <span className="rounded bg-secondary px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
             Admin
           </span>
         </div>

@@ -1,4 +1,6 @@
 import "server-only";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import { COMPANY } from "@/lib/constants";
 import { formatCurrency, formatDate } from "@/lib/utils";
@@ -45,6 +47,22 @@ export async function generateLoiPdf(data: LoiData): Promise<Uint8Array> {
 
   // Canvas background band at top
   page.drawRectangle({ x: 0, y: height - 130, width, height: 130, color: CANVAS });
+
+  // Official SAMORE logo (top-right). Non-fatal if the asset is unavailable.
+  try {
+    const logoBytes = await readFile(path.join(process.cwd(), "public", "samore-logo.png"));
+    const logo = await doc.embedPng(logoBytes);
+    const logoH = 46;
+    const logoW = (logo.width / logo.height) * logoH;
+    page.drawImage(logo, {
+      x: width - margin - logoW,
+      y: height - 120 + (130 - logoH) / 2 - 4,
+      width: logoW,
+      height: logoH,
+    });
+  } catch {
+    // Logo missing — continue without it rather than fail the document.
+  }
 
   // Brand
   page.drawText("SAMORE", {

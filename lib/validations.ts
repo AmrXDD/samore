@@ -115,6 +115,25 @@ export const categorySchema = z.object({
   name: z.string().min(2, "Category name is required.").max(120),
 });
 
+export const steelPriceSchema = z.object({
+  tableGroup: z.string().min(1, "Group is required.").max(80),
+  product: z.string().min(1, "Product is required.").max(120),
+  quantity: z.string().min(1, "Quantity is required.").max(60),
+  priceUsd: z.string().min(1, "Price is required.").max(60),
+  sortOrder: z.coerce.number().int().min(0).default(0),
+  isActive: z.boolean().default(true),
+});
+export type SteelPriceInput = z.infer<typeof steelPriceSchema>;
+
+export const oilPriceSchema = z.object({
+  product: z.string().min(1, "Product is required.").max(120),
+  fobUsd: z.string().max(60).optional().or(z.literal("")),
+  cifUsd: z.string().max(60).optional().or(z.literal("")),
+  sortOrder: z.coerce.number().int().min(0).default(0),
+  isActive: z.boolean().default(true),
+});
+export type OilPriceInput = z.infer<typeof oilPriceSchema>;
+
 export const bankSettingsSchema = z.object({
   bankName: z.string().max(160).optional().or(z.literal("")),
   accountName: z.string().max(160).optional().or(z.literal("")),

@@ -108,6 +108,29 @@ export type PaymentReceipt = {
   uploaded_at: string;
 };
 
+export type SteelPrice = {
+  id: string;
+  table_group: string;
+  product: string;
+  quantity: string;
+  price_usd: string;
+  sort_order: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type OilPrice = {
+  id: string;
+  product: string;
+  fob_usd: string | null;
+  cif_usd: string | null;
+  sort_order: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
 export type BankSettings = {
   id: string;
   bank_name: string | null;

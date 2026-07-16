@@ -9,6 +9,7 @@ import {
   Shield,
   Settings,
   BarChart3,
+  Tags,
   type LucideIcon,
 } from "lucide-react";
 
@@ -24,6 +25,7 @@ export const ADMIN_NAV: AdminNavItem[] = [
   { title: "Dashboard", href: "/admin", icon: LayoutDashboard, exact: true },
   { title: "Courses", href: "/admin/courses", icon: GraduationCap },
   { title: "Services", href: "/admin/services", icon: Boxes },
+  { title: "Trade Prices", href: "/admin/trade-prices", icon: Tags },
   { title: "Customers", href: "/admin/customers", icon: Users },
   { title: "Payments", href: "/admin/payments", icon: CreditCard },
   { title: "Emails", href: "/admin/emails", icon: Mail },

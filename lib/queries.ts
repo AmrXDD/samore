@@ -10,6 +10,8 @@ import type {
   Loi,
   Payment,
   ActivityLog,
+  SteelPrice,
+  OilPrice,
 } from "@/types";
 
 /** True when the Supabase server credentials are present. */
@@ -85,6 +87,28 @@ export async function getCategories(): Promise<CourseCategory[]> {
     .select("*")
     .order("name");
   return (data as CourseCategory[]) ?? [];
+}
+
+/* ───────────────── Trade prices (Steel / Oil) ───────────────── */
+
+export async function getSteelPrices(activeOnly = true): Promise<SteelPrice[]> {
+  const supabase = safeClient();
+  if (!supabase) return [];
+  let q = supabase.from("steel_prices").select("*");
+  if (activeOnly) q = q.eq("is_active", true);
+  const { data } = await q
+    .order("table_group", { ascending: true })
+    .order("sort_order", { ascending: true });
+  return (data as SteelPrice[]) ?? [];
+}
+
+export async function getOilPrices(activeOnly = true): Promise<OilPrice[]> {
+  const supabase = safeClient();
+  if (!supabase) return [];
+  let q = supabase.from("oil_prices").select("*");
+  if (activeOnly) q = q.eq("is_active", true);
+  const { data } = await q.order("sort_order", { ascending: true });
+  return (data as OilPrice[]) ?? [];
 }
 
 /* ───────────────── Admin dashboard queries ───────────────── */

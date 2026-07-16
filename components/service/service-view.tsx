@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { ArrowRight, Check, Lock } from "lucide-react";
 import { PageHero, type Crumb } from "@/components/site/page-hero";
 import { Section, SectionHeading } from "@/components/site/section";
@@ -62,7 +63,14 @@ function childrenOf(slug: string): { title: string; slug: string; lede: string }
   return out;
 }
 
-export function ServiceView({ service }: { service: ServiceContent }) {
+export function ServiceView({
+  service,
+  extras,
+}: {
+  service: ServiceContent;
+  /** Page-specific sections (e.g. live trade prices + specification sheets). */
+  extras?: ReactNode;
+}) {
   const crumbs = buildCrumbs(service);
   const children = childrenOf(service.slug);
 
@@ -159,6 +167,9 @@ export function ServiceView({ service }: { service: ServiceContent }) {
           ))}
         </div>
       </Section>
+
+      {/* Page-specific sections (trade prices, specification sheets…) */}
+      {extras}
 
       {/* Course catalogue (Engineering Courses) */}
       {service.slug === "engineering-courses" ? (
