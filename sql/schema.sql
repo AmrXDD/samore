@@ -680,11 +680,15 @@ declare
   admin_id uuid := '11111111-1111-1111-1111-111111111111';
 begin
   if not exists (select 1 from auth.users where email = 'admin@samore.com') then
+    -- NOTE: the *_token / email_change columns MUST be '' (not NULL).
+    -- Supabase's auth service cannot read NULL from them and every sign-in
+    -- would fail with "Invalid email or password".
     insert into auth.users (
       id, instance_id, aud, role, email,
       encrypted_password, email_confirmed_at,
       raw_app_meta_data, raw_user_meta_data,
-      created_at, updated_at
+      created_at, updated_at,
+      confirmation_token, recovery_token, email_change_token_new, email_change
     ) values (
       admin_id,
       '00000000-0000-0000-0000-000000000000',
@@ -694,14 +698,15 @@ begin
       now(),
       '{"provider":"email","providers":["email"]}'::jsonb,
       '{"full_name":"SAMORE Administrator","role":"admin"}'::jsonb,
-      now(), now()
+      now(), now(),
+      '', '', '', ''
     );
 
     insert into auth.identities (
       id, provider_id, user_id, identity_data, provider, last_sign_in_at, created_at, updated_at
     ) values (
       gen_random_uuid(),
-      admin_id,
+      admin_id::text,
       admin_id,
       jsonb_build_object('sub', admin_id::text, 'email', 'admin@samore.com', 'email_verified', true),
       'email',

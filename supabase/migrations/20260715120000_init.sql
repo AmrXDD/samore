@@ -150,6 +150,7 @@ create table if not exists public.courses (
   id            uuid primary key default gen_random_uuid(),
   title         text not null,
   slug          text not null unique,
+  code          text,
   description   text,
   price         numeric(12,2) not null default 0 check (price >= 0),
   currency      char(3) not null default 'USD',
@@ -255,6 +256,22 @@ create table if not exists public.payment_receipts (
   uploaded_at timestamptz not null default now()
 );
 create index if not exists receipts_payment_idx on public.payment_receipts(payment_id);
+
+-- ---------------------------------------------------------------------------
+-- payment_items  (order line items — one row per course in the cart)
+-- ---------------------------------------------------------------------------
+create table if not exists public.payment_items (
+  id         uuid primary key default gen_random_uuid(),
+  payment_id uuid not null references public.payments(id) on delete cascade,
+  course_id  uuid references public.courses(id) on delete set null,
+  title      text not null,
+  code       text,
+  price      numeric(12,2) not null default 0 check (price >= 0),
+  quantity   integer not null default 1 check (quantity > 0),
+  created_at timestamptz not null default now()
+);
+create index if not exists payment_items_payment_idx on public.payment_items(payment_id);
+create index if not exists payment_items_course_idx on public.payment_items(course_id);
 
 -- ---------------------------------------------------------------------------
 -- bank_settings (singleton)
@@ -421,6 +438,7 @@ alter table public.course_categories   enable row level security;
 alter table public.courses             enable row level security;
 alter table public.course_registrations enable row level security;
 alter table public.payments            enable row level security;
+alter table public.payment_items       enable row level security;
 alter table public.payment_receipts    enable row level security;
 alter table public.bank_settings       enable row level security;
 alter table public.contact_messages    enable row level security;
@@ -514,6 +532,10 @@ create policy registrations_admin_all on public.course_registrations
 
 drop policy if exists payments_admin_all on public.payments;
 create policy payments_admin_all on public.payments
+  for all using (public.is_admin()) with check (public.is_admin());
+
+drop policy if exists payment_items_admin_all on public.payment_items;
+create policy payment_items_admin_all on public.payment_items
   for all using (public.is_admin()) with check (public.is_admin());
 
 drop policy if exists receipts_admin_all on public.payment_receipts;
@@ -658,11 +680,15 @@ declare
   admin_id uuid := '11111111-1111-1111-1111-111111111111';
 begin
   if not exists (select 1 from auth.users where email = 'admin@samore.com') then
+    -- NOTE: the *_token / email_change columns MUST be '' (not NULL).
+    -- Supabase's auth service cannot read NULL from them and every sign-in
+    -- would fail with "Invalid email or password".
     insert into auth.users (
       id, instance_id, aud, role, email,
       encrypted_password, email_confirmed_at,
       raw_app_meta_data, raw_user_meta_data,
-      created_at, updated_at
+      created_at, updated_at,
+      confirmation_token, recovery_token, email_change_token_new, email_change
     ) values (
       admin_id,
       '00000000-0000-0000-0000-000000000000',
@@ -672,14 +698,15 @@ begin
       now(),
       '{"provider":"email","providers":["email"]}'::jsonb,
       '{"full_name":"SAMORE Administrator","role":"admin"}'::jsonb,
-      now(), now()
+      now(), now(),
+      '', '', '', ''
     );
 
     insert into auth.identities (
       id, provider_id, user_id, identity_data, provider, last_sign_in_at, created_at, updated_at
     ) values (
       gen_random_uuid(),
-      admin_id,
+      admin_id::text,
       admin_id,
       jsonb_build_object('sub', admin_id::text, 'email', 'admin@samore.com', 'email_verified', true),
       'email',
