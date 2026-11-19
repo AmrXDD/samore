@@ -10,6 +10,7 @@ import {
   Settings,
   BarChart3,
   Tags,
+  ArrowDownUp,
   type LucideIcon,
 } from "lucide-react";
 
@@ -32,6 +33,7 @@ export const ADMIN_NAV: AdminNavItem[] = [
   { title: "LOI", href: "/admin/loi", icon: FileText },
   { title: "Users", href: "/admin/users", icon: Shield },
   { title: "Analytics", href: "/admin/analytics", icon: BarChart3 },
+  { title: "Import / Export", href: "/admin/data", icon: ArrowDownUp },
   { title: "Settings", href: "/admin/settings", icon: Settings },
 ];
 

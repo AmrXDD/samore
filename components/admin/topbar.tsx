@@ -27,6 +27,7 @@ const TITLES: Record<string, string> = {
   "/admin/loi": "Letters of Intent",
   "/admin/users": "Users",
   "/admin/analytics": "Analytics",
+  "/admin/data": "Import / Export",
   "/admin/settings": "Settings",
 };
 
